@@ -1,0 +1,83 @@
+{% extends 'templates/master.html' %}
+
+{% block content %}
+<div class="container">
+    <h1>Upload a fasta file</h1>
+    <form action="" method="post" enctype="multipart/form-data" onsubmit="event.preventDefault()">
+        <div class="upload-btn-wrapper">
+            <input type="file" name="file" id="file" style="display: none;" accept=".fasta,.txt"
+                onchange="handleFileChange()">
+            <label for="file" id="file-label" class="upload-btn">Choose a file</label>
+        </div>
+        <div class="submit-btn-wrapper">
+            <button type="submit" class="submit-btn" id="submit-btn" onclick="uploadFile(event)">
+                <span id="submit-txt">Submit</span></button>
+        </div>
+        <div class="loader" id="loader"></div>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    async function uploadFile(e) {
+        e.preventDefault()
+
+        const fileInput = document.getElementById("file");
+        const file = fileInput.files[0];
+
+        if (!file) {
+            alert("Please select a file.");
+            return;
+        }
+
+        document.getElementById('loader').classList.add('show')
+        document.getElementById('submit-btn').setAttribute("disabled", "disabled");
+        document.getElementById('submit-txt').innerText = "Please wait...";
+
+        const formData = new FormData();
+        formData.append("file", file);
+
+        try {
+            const response = await fetch("/api/upload_fasta", {
+                method: "POST",
+                body: formData,
+            });
+
+            if (response.ok) {
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+
+                const a = document.createElement("a");
+                a.href = url;
+                a.target = "_blanks"
+                a.download = "results.csv";
+                a.style.display = "none";
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+            } else {
+                alert("Error processing the file. Please try again.");
+            }
+        } catch (error) {
+            console.error("Error:", error);
+        } finally {
+            document.getElementById('loader').classList.remove('show')
+            document.getElementById('submit-btn').removeAttribute('disabled')
+            document.getElementById('submit-txt').innerText = "Submit";
+        }
+    }
+
+    function handleFileChange() {
+        const fileInput = document.getElementById("file");
+        const file = fileInput.files[0];
+        if (file) {
+            document.getElementById('file-label').classList.add('file')
+            document.getElementById('file-label').innerText = 'File selected'
+        } else {
+            document.getElementById('file-label').classList.remove('file')
+            document.getElementById('file-label').innerText = 'Choose a file'
+        }
+    }
+</script>
+{% endblock %}
