@@ -8,3 +8,6 @@ class MLModel:
     # TODO: Implement ML predictions
     def get_predictions(self, uniprot_results):
         return {}
+
+
+# do this later
