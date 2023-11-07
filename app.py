@@ -33,15 +33,19 @@ def create_app():
 
 
 # Configure logging
-def configure_logging():
+def configure_logging(app):
     logger = logging.getLogger()
     formatter = logging.Formatter(
         "%(asctime)s %(levelname)s %(name)s : %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S",
     )
 
+    dir = app.config.get("LOGS")
+    if not os.path.exists(dir):
+        os.makedirs(dir)
+
     file_handler = RotatingFileHandler(
-        "storage/logs/app.log", backupCount=100, maxBytes=1000000
+        f"{dir}/app.log", backupCount=100, maxBytes=1000000
     )
     file_handler.setLevel(logging.INFO)
     file_handler.setFormatter(formatter)
@@ -62,6 +66,5 @@ def register_blueprints():
 
 # Run application
 app = create_app()
-configure_logging()
+configure_logging(app)
 register_blueprints()
-

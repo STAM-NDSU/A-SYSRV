@@ -4,3 +4,5 @@ venv
 temp.*
 storage/logs/*
 storage/uniprot/*
+storage/artifacts/*
+.DS_Store

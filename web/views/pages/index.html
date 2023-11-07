@@ -2,19 +2,61 @@
 
 {% block content %}
 <div class="container">
-    <h1>Upload a fasta file</h1>
-    <form action="" method="post" enctype="multipart/form-data" onsubmit="event.preventDefault()">
-        <div class="upload-btn-wrapper">
-            <input type="file" name="file" id="file" style="display: none;" accept=".fasta,.txt"
-                onchange="handleFileChange()">
-            <label for="file" id="file-label" class="upload-btn">Choose a file</label>
+    <div class="row justify-content-center">
+        <div class="col col-lg-8">
+            <h2>Upload a fasta file</h2>
+            <form action="" method="post" enctype="multipart/form-data" onsubmit="event.preventDefault()">
+                <div class="upload-btn-wrapper">
+                    <input type="file" name="file" id="file" style="display: none;" accept=".fasta,.txt"
+                        onchange="handleFileChange()">
+                    <label for="file" id="file-label" class="upload-btn">Choose a file</label>
+                </div>
+                <div class="submit-btn-wrapper">
+                    <button type="submit" class="submit-btn" id="submit-btn" onclick="uploadFile(event)">
+                        <span id="submit-txt">Submit</span></button>
+                </div>
+                <div class="loader" id="loader"></div>
+                <p class="text-muted mt-2">Note: We only accept UNIPROT sequence files</p>
+                <hr style="width: 400px;margin:auto">
+                <div class="mt-2">
+                    <h5>Some examples of fasta files</h5>
+                    <div class="d-flex justify-content-center">
+                        <div class="me-2"> <a href="{{url_for('static', filename='try-out/example-1.fasta')}}">Example
+                                1</a></div>
+                        <div class="me-2"> <a href="{{url_for('static', filename='try-out/example-2.fasta')}}">Example
+                                2</a></div>
+                        <div class="me-2"> <a href="{{url_for('static', filename='try-out/example-3.fasta')}}">Example
+                                3</a></div>
+                    </div>
+                </div>
+
+
+            </form>
         </div>
-        <div class="submit-btn-wrapper">
-            <button type="submit" class="submit-btn" id="submit-btn" onclick="uploadFile(event)">
-                <span id="submit-txt">Submit</span></button>
+        <div class="col-lg-4 mt-3 mt-lg-0" id="results-block" style="display: none;">
+            <hr class="d-lg-none">
+            <span class="badge btn-lg bg-secondary px-5 py-2">#Results</span>
+            <table class="table mt-2">
+                <thead>
+                    <tr>
+                        <th scope="col">S.N</th>
+                        <th scope="col">Predictions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th scope="row">1</th>
+                        <td>98.5</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="download-btn-wrapper mt-4">
+                <button type="button" class="btn btn-success" id="download-btn" data-filename="2023_11_06_20_53_07.json"
+                    onclick="downloadFile(event)">Download
+                    Results</button>
+            </div>
         </div>
-        <div class="loader" id="loader"></div>
-    </form>
+    </div>
 </div>
 {% endblock %}
 
@@ -34,12 +76,46 @@
         document.getElementById('loader').classList.add('show')
         document.getElementById('submit-btn').setAttribute("disabled", "disabled");
         document.getElementById('submit-txt').innerText = "Please wait...";
+        document.getElementById('results-block').style.display = "none"
 
         const formData = new FormData();
         formData.append("file", file);
 
         try {
             const response = await fetch("/api/upload_fasta", {
+                method: "POST",
+                body: formData,
+            });
+
+            if (response.ok) {
+                const data = await response.json()
+                const results = data.results
+                const filename = data.filename
+                document.getElementById('download-btn').setAttribute("data-filename", filename);
+                document.getElementById('results-block').style.display = "block"
+            } else {
+                alert("Error processing the file. Please try again.");
+            }
+        } catch (error) {
+            console.error("Error:", error);
+        } finally {
+            document.getElementById('loader').classList.remove('show')
+            document.getElementById('submit-btn').removeAttribute('disabled')
+            document.getElementById('submit-txt').innerText = "Submit";
+        }
+    }
+
+    async function downloadFile(e) {
+        e.stopPropagation()
+
+        const ele = document.getElementById("download-btn");
+        const filename = ele.getAttribute('data-filename')
+
+        const formData = new FormData();
+        formData.append("filename", filename);
+
+        try {
+            const response = await fetch("/api/download_file", {
                 method: "POST",
                 body: formData,
             });
@@ -61,12 +137,9 @@
             }
         } catch (error) {
             console.error("Error:", error);
-        } finally {
-            document.getElementById('loader').classList.remove('show')
-            document.getElementById('submit-btn').removeAttribute('disabled')
-            document.getElementById('submit-txt').innerText = "Submit";
         }
     }
+
 
     function handleFileChange() {
         const fileInput = document.getElementById("file");
