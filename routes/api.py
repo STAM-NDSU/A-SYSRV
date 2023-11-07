@@ -11,6 +11,9 @@ api_controller = APIController()
 def upload_fasta():
     return api_controller.upload_fasta()
 
+@bp.route("/download_file", methods=["POST"])
+def download_file():
+    return api_controller.download_file()
 
 @bp.route("/status", methods=["GET"])
 def health_check():

@@ -3,6 +3,7 @@ from Bio import SeqIO
 import json
 from utils.utils import *
 import logging
+import os
 from io import StringIO
 from flask import current_app
 from services.base_service import BaseService
@@ -25,7 +26,6 @@ class UniportService(BaseService):
             result = data["results"][0]
             return result
         return None
-
 
     # Process a FASTA file
     def process_fasta(self, fasta_file):
@@ -50,6 +50,25 @@ class UniportService(BaseService):
     # Save UNIPROT response
     def save_uniprot_response(self, res):
         self.logger.info("SAVE UNIPROT response")
-        output_file = f"storage/uniprot/{get_current_datetime()}.json"
+
+        dir = current_app.config.get("UNIPROT_LOGS")
+        if not os.path.exists(dir):
+            os.makedirs(dir)
+
+        output_file = f"{dir}/{get_current_datetime()}.json"
         with open(output_file, "w") as json_file:
             json.dump(res, json_file, indent=4)
+
+    # Save Model response
+    def save_model_response(self, res):
+        self.logger.info("SAVE Model response")
+
+        dir = current_app.config.get("ARTIFACTS")
+        if not os.path.exists(dir):
+            os.makedirs(dir)
+
+        filename = f"{get_current_datetime()}.json"
+        full_filepath = f"{dir}/{filename}"
+        with open(full_filepath, "w") as json_file:
+            json.dump(res, json_file, indent=4)
+        return filename
