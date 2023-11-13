@@ -25,7 +25,7 @@ class APIController(BaseController):
             results = self.uniprot_service.process_fasta(file)
 
             # # TODO: Implement ML prediction
-            # predictions = self.ml_model.get_predictions(results)
+            # predictions = self.ml_model.get_predictions(result)
             filename = self.uniprot_service.save_model_response(results)
 
             return jsonify({"results": results, "filename": filename})
