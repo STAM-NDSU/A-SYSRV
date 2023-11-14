@@ -41,16 +41,7 @@ class MLModel(BaseML):
             model_dir = current_app.config.get("MODEL")
             model_path = f"{model_dir}/RandomForestClassifier.pkl"
 
-
-            files = [os.path.join(db_dir, f) for f in os.listdir(db_dir) if os.path.isfile(os.path.join(db_dir, f))]
-
-            if not files:
-                return None
-
-            # Find the file that was last modified
-            last_modified_file = max(files, key=os.path.getmtime)
-
-            predictions = predict_with_model(last_modified_file, model_path)
+            predictions = predict_with_model(full_filepath, model_path)
 
             return predictions
         except Exception as e:

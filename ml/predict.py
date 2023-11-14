@@ -1,6 +1,10 @@
 import pandas as pd
 import pickle
 import sqlite3
+import logging
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 
 def predict_with_model(db_path, model_path):
@@ -29,7 +33,12 @@ def predict_with_model(db_path, model_path):
         # Make predictions
         predictions = loaded_model.predict(X)
 
-        return predictions
+        predictions_df = pd.DataFrame(predictions, columns=['GO_0051287', 'GO_0009331', 'GO_0003677', 'GO_0003723', 'GO_0005506',
+       'GO_0005524', 'GO_0046167', 'GO_0008270', 'GO_0016887', 'GO_0019843',
+       'GO_0008654', 'GO_0046872', 'GO_0050661', 'GO_0051539'])
+        
+
+        return predictions_df
 
     except Exception as e:
         # Handle any exceptions (like file not found or data errors)
