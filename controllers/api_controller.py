@@ -20,15 +20,24 @@ class APIController(BaseController):
             file = request.files["file"]
             if not file:
                 return jsonify("File Not Found"), 419
+            
+            # save fasta file to storage
+            dir = current_app.config.get("FASTAS")
+            if not os.path.exists(dir):
+                os.makedirs(dir)
+            filepath = os.path.join(dir, file.filename)
+            file.save(filepath)
+            file.seek(0)
 
             # get JSON response from UNIPROT
             results = self.uniprot_service.process_fasta(file)
 
-            # # TODO: Implement ML prediction
-            # predictions = self.ml_model.get_predictions(result)
-            filename = self.uniprot_service.save_model_response(results)
+            #TODO: this should not be the solution.
+            filename = self.uniprot_service.save_uniprot_response(results)
+            predictions = self.ml_model.get_predictions(filepath, filename)
+            filename = self.uniprot_service.save_model_response(predictions)
 
-            return jsonify({"results": results, "filename": filename})
+            return jsonify({"results": results, "filename": filename}) #TODO: why this format?
         except Exception as e:
             traceback.print_exc()
             self.logger.error(e)

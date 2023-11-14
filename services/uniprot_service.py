@@ -58,6 +58,7 @@ class UniportService(BaseService):
         output_file = f"{dir}/{get_current_datetime()}.json"
         with open(output_file, "w") as json_file:
             json.dump(res, json_file, indent=4)
+        return output_file
 
     # Save Model response
     def save_model_response(self, res):
