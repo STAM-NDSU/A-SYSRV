@@ -37,7 +37,7 @@ class APIController(BaseController):
             predictions = self.ml_model.get_predictions(filepath, filename)
             filename = self.uniprot_service.save_model_response(predictions)
 
-            return jsonify({"results": results, "filename": filename}) #TODO: why this format?
+            return jsonify({"results": predictions, "filename": filename}) #TODO: why this format?
         except Exception as e:
             traceback.print_exc()
             self.logger.error(e)
