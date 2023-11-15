@@ -3,10 +3,10 @@
 {% block content %}
 <div class="container">
     <div class="row justify-content-center">
-        <div class="col col-lg-8">
+        <div class="col col-lg-6">
             <h2>Upload a fasta file</h2>
             <form action="" method="post" enctype="multipart/form-data" onsubmit="event.preventDefault()">
-                <div class="upload-btn-wrapper">
+                <div class="upload-btn-wrapper" title="Click to choose a file">
                     <input type="file" name="file" id="file" style="display: none;" accept=".fasta,.txt"
                         onchange="handleFileChange()">
                     <label for="file" id="file-label" class="upload-btn">Choose a file</label>
@@ -33,23 +33,20 @@
 
             </form>
         </div>
-        <div class="col-lg-4 mt-3 mt-lg-0" id="results-block" style="display: none;">
+        <div class="col-lg-6 mt-3 mt-lg-0" id="results-block" style="display: none;">
             <hr class="d-lg-none">
             <span class="badge btn-lg bg-secondary px-5 py-2">#Results</span>
             <table class="table mt-2">
                 <thead>
-                    <tr>
+                    <tr id="table-heading">
                         <th scope="col">S.N</th>
-                        <th scope="col">Predictions</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <tr>
-                        <th scope="row">1</th>
-                        <td>98.5</td>
-                    </tr>
+                <tbody id="table-body">
                 </tbody>
             </table>
+            <p class="text-muted">This is only a snippet of the result. Please click button below to download full
+                results.</p>
             <div class="download-btn-wrapper mt-4">
                 <button type="button" class="btn btn-success" id="download-btn" data-filename="2023_11_06_20_53_07.json"
                     onclick="downloadFile(event)">Download
@@ -89,7 +86,10 @@
 
             if (response.ok) {
                 const data = await response.json()
-                const results = data.results
+                const results = JSON.parse(data.results)
+                console.log(results)
+                appendResultsToDocument(results)
+
                 const filename = data.filename
                 document.getElementById('download-btn').setAttribute("data-filename", filename);
                 document.getElementById('results-block').style.display = "block"
@@ -140,7 +140,61 @@
         }
     }
 
+    function appendResultsToDocument(results) {
+        let maxColumns = 5;
+        let goTerms = Object.keys(results).slice(0, maxColumns);
+        let goTermsPredictions = Object.values(results).slice(0, maxColumns);
 
+        let goTermsPredictionsFormatted = goTermsPredictions.reduce(
+            (acc, predictions) => {
+                let singleGoTermPrediction = Object.values(predictions).slice(
+                    0,
+                    maxColumns
+                );
+                acc.push(singleGoTermPrediction);
+                return acc;
+            },
+            []
+        );
+
+        let maxRows = goTermsPredictionsFormatted[0].length;
+        let goTermsPredictionsTransposed = Array(maxRows).fill([]);
+
+        goTermsPredictionsFormatted.forEach((item, colIdx) => {
+            item.forEach((each, rowIdx) => {
+                goTermsPredictionsTransposed[rowIdx] = [
+                    ...goTermsPredictionsTransposed[rowIdx],
+                    each,
+                ];
+            });
+        });
+
+        let tableHeader = document.getElementById("table-heading");
+        let tableBody = document.getElementById("table-body");
+
+        goTerms.forEach((item) => {
+            let th = document.createElement("th");
+            th.innerText = item;
+            tableHeader.appendChild(th);
+        });
+
+        goTermsPredictionsTransposed.forEach((item, index) => {
+            let tr = document.createElement("tr");
+
+            let td = document.createElement("td");
+            td.innerText = index + 1;
+            tr.appendChild(td);
+
+            item.forEach((each) => {
+                let td = document.createElement("td");
+                td.innerText = each;
+                tr.appendChild(td);
+            });
+
+            tableBody.appendChild(tr);
+        });
+
+    }
     function handleFileChange() {
         const fileInput = document.getElementById("file");
         const file = fileInput.files[0];
