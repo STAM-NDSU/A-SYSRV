@@ -26,6 +26,12 @@ def predict_with_model(db_path, model_path):
         # Split the data into features and targets
         X = df[df.columns[~df.columns.str.startswith('GO_')]]
 
+        # remove any row with NaN
+        X = X.dropna()
+
+        # log X shape
+        logger.info(f"X shape: {X.shape}")
+
         # Load the model from file
         with open(model_path, 'rb') as file:
             loaded_model = pickle.load(file)
