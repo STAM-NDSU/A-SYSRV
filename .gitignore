@@ -5,4 +5,9 @@ temp.*
 storage/logs/*
 storage/uniprot/*
 storage/artifacts/*
+storage/fastas/*
+ml/data/*
 .DS_Store
+*.db
+*.fasta
+*.ipynb

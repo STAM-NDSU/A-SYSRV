@@ -7,6 +7,7 @@ import os
 from io import StringIO
 from flask import current_app
 from services.base_service import BaseService
+import pandas as pd
 
 
 class UniportService(BaseService):
@@ -58,6 +59,7 @@ class UniportService(BaseService):
         output_file = f"{dir}/{get_current_datetime()}.json"
         with open(output_file, "w") as json_file:
             json.dump(res, json_file, indent=4)
+        return output_file
 
     # Save Model response
     def save_model_response(self, res):
@@ -67,8 +69,7 @@ class UniportService(BaseService):
         if not os.path.exists(dir):
             os.makedirs(dir)
 
-        filename = f"{get_current_datetime()}.json"
+        filename = f"{get_current_datetime()}.csv"
         full_filepath = f"{dir}/{filename}"
-        with open(full_filepath, "w") as json_file:
-            json.dump(res, json_file, indent=4)
+        res.to_csv(full_filepath, index=False)
         return filename
