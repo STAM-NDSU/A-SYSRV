@@ -159,8 +159,6 @@ def populate_db(fasta_file, json_file, db_dir, tsv_directory):
     batch_records2 = []
 
     for primary_accession, item in data.items():
-        # log primary_accession
-        logger.info(f"primary_accession: {primary_accession}")
         
         # Extract data using the keys directly from the item
         record = (
@@ -186,6 +184,8 @@ def populate_db(fasta_file, json_file, db_dir, tsv_directory):
     # Re-enable journaling and synchronous writes
     cur.execute('PRAGMA journal_mode = DELETE')  # Set it back to the default or your preferred mode
     cur.execute('PRAGMA synchronous = NORMAL')   # Set it back to the default or your preferred mode
+
+    #############
 
     # Iterate through each TSV file in the directory
     for tsv_filename in os.listdir(tsv_directory):
