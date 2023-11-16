@@ -1,6 +1,7 @@
 import subprocess
 import os
 import logging
+import sys
 
 logger = logging.getLogger(__name__) # TODO: why not workign?
 
@@ -13,9 +14,11 @@ def generate_iFeature(input_file, output_directory, descriptors=None):
     # Ensure the output directory exists
     os.makedirs(output_directory, exist_ok=True)
 
+    python_executable = sys.executable
+
     for descriptor in descriptors:
         logger.info(f"Processing descriptor: {descriptor}")
-        command = ["python", "./ml/iFeature/iFeature.py", "--file", input_file, "--type", descriptor]
+        command = [python_executable, "./ml/iFeature/iFeature.py", "--file", input_file, "--type", descriptor]
         result = subprocess.run(command, capture_output=True, text=True)
 
         # Check if the encoding.tsv file exists
