@@ -11,3 +11,4 @@ ml/data/*
 *.db
 *.fasta
 *.ipynb
+*.ipynb
