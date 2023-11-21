@@ -4,6 +4,7 @@
 import argparse, sys
 from PseKRAAC import *
 from codes import readFasta, saveCode
+import os
 
 USAGE = """The 'raactype' value for each subtype descriptor could be chosen from:
 	type1    [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
@@ -104,5 +105,5 @@ if __name__ == '__main__':
 	print('k_tuple peptide number: ' + str(ktuple))
 	print('gap or lambda value: ' + str(args.gap_lambda) + '\n\n')
 	encodings = eval(myFun)
-	outFile = args.outFile if args.outFile != None else 'encoding.tsv'
+	outFile = args.outFile if args.outFile != None else os.path.join(os.path.dirname(__file__), "encoding.tsv") 
 	saveCode.savetsv(encodings, outFile)

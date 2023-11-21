@@ -2,8 +2,9 @@
 #_*_coding:utf-8_*_
 
 import sys
+import os
 
-def savetsv(encodings, file = 'encoding.tsv'):
+def savetsv(encodings, file = os.path.join(os.path.dirname(__file__), "encoding.tsv") ):
 	with open(file, 'w') as f:
 		if encodings == 0:
 			f.write('Descriptor calculation failed.')
