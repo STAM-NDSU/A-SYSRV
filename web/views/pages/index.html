@@ -4,7 +4,8 @@
 <div class="container">
     <div class="row justify-content-center">
         <div class="col col-lg-6">
-            <h2>Upload a fasta file</h2>
+            <h2>A-SysRV Prediction Tool</h2>
+            <br>
             <form action="" method="post" enctype="multipart/form-data" onsubmit="event.preventDefault()">
                 <div class="upload-btn-wrapper" title="Click to choose a file">
                     <input type="file" name="file" id="file" style="display: none;" accept=".fasta,.txt"
@@ -16,17 +17,19 @@
                         <span id="submit-txt">Submit</span></button>
                 </div>
                 <div class="loader" id="loader"></div>
-                <p class="text-muted mt-2">Note: For now, we only accept ".fasta" files from UNIPROT.org</p>
+                <p class="text-muted mt-2">Note: For now, we only accept ".fasta" files from UNIPROT.org.</p>
+                <p class="text-muted">You can use one of the samples from below.</p>
                 <hr style="width: 400px;margin:auto">
                 <div class="mt-2">
-                    <h5>Some examples of fasta files</h5>
+                    <h5>Sample FASTA files:</h5>
                     <div class="d-flex justify-content-center">
-                        <div class="me-2"> <a href="{{url_for('static', filename='try-out/example-1.fasta')}}">Example
-                                1</a></div>
-                        <div class="me-2"> <a href="{{url_for('static', filename='try-out/example-2.fasta')}}">Example
-                                2</a></div>
-                        <div class="me-2"> <a href="{{url_for('static', filename='try-out/example-3.fasta')}}">Example
-                                3</a></div>
+                        <div class="me-2"> <a href="{{url_for('static', filename='try-out/example-3.fasta')}}">Small
+                                Sample</a></div>
+                        <div class="me-2"> <a href="{{url_for('static', filename='try-out/example-2.fasta')}}">Medium
+                                Sample</a></div>
+                        <div class="me-2"> <a href="{{url_for('static', filename='try-out/example-1.fasta')}}">Large
+                                Sample</a></div>
+
                     </div>
                 </div>
 
@@ -35,11 +38,11 @@
         </div>
         <div class="col-lg-6 mt-3 mt-lg-0" id="results-block" style="display: none;">
             <hr class="d-lg-none">
-            <span class="badge btn-lg bg-secondary px-5 py-2">#Results</span>
+            <span class="badge btn-lg bg-secondary px-5 py-2">Results</span>
             <table class="table mt-2">
                 <thead>
                     <tr id="table-heading">
-                        <th scope="col">S.N</th>
+                        <th scope="col">ID</th>
                     </tr>
                 </thead>
                 <tbody id="table-body">
@@ -49,8 +52,7 @@
                 results.</p>
             <div class="download-btn-wrapper mt-4">
                 <button type="button" class="btn btn-success" id="download-btn" data-filename="2023_11_06_20_53_07.json"
-                    onclick="downloadFile(event)">Download
-                    Results</button>
+                    onclick="downloadFile(event)">Download Results</button>
             </div>
         </div>
     </div>
@@ -105,25 +107,70 @@
         }
     }
 
+    function appendResultsToDocument(results) {
+        let tableHeader = document.getElementById("table-heading");
+        let tableBody = document.getElementById("table-body");
+
+        // Clear existing table content
+        tableHeader.innerHTML = '';
+        tableBody.innerHTML = '';
+
+        // Set up the header
+        let snHeader = document.createElement("th");
+        snHeader.innerText = "ID";
+        tableHeader.appendChild(snHeader);
+
+        let goTermsHeader = document.createElement("th");
+        goTermsHeader.innerText = "Predicted GO Terms";
+        tableHeader.appendChild(goTermsHeader);
+
+        // Populate the body of the table
+        let count = 1;
+        for (let id in results) {
+            if (results.hasOwnProperty(id)) {
+                let tr = document.createElement("tr");
+
+                // Serial Number column
+                let tdSN = document.createElement("td");
+                tdSN.innerText = count++;
+                tr.appendChild(tdSN);
+
+                // Predicted GO Terms column
+                let tdGoTerms = document.createElement("td");
+                tdGoTerms.innerText = results[id].join(", ");
+                tr.appendChild(tdGoTerms);
+
+                tableBody.appendChild(tr);
+            }
+        }
+    }
+
+    function handleFileChange() {
+        const fileInput = document.getElementById("file");
+        const file = fileInput.files[0];
+        if (file) {
+            document.getElementById('file-label').classList.add('file')
+            document.getElementById('file-label').innerText = 'File selected'
+        } else {
+            document.getElementById('file-label').classList.remove('file')
+            document.getElementById('file-label').innerText = 'Choose a file'
+        }
+    }
+
     async function downloadFile(e) {
         e.stopPropagation()
-
         const ele = document.getElementById("download-btn");
         const filename = ele.getAttribute('data-filename')
-
         const formData = new FormData();
         formData.append("filename", filename);
-
         try {
             const response = await fetch("/api/download_file", {
                 method: "POST",
                 body: formData,
             });
-
             if (response.ok) {
                 const blob = await response.blob();
                 const url = window.URL.createObjectURL(blob);
-
                 const a = document.createElement("a");
                 a.href = url;
                 a.target = "_blanks"
@@ -140,71 +187,5 @@
         }
     }
 
-    function appendResultsToDocument(results) {
-        let maxColumns = 5;
-        let goTerms = Object.keys(results).slice(0, maxColumns);
-        let goTermsPredictions = Object.values(results).slice(0, maxColumns);
-
-        let goTermsPredictionsFormatted = goTermsPredictions.reduce(
-            (acc, predictions) => {
-                let singleGoTermPrediction = Object.values(predictions).slice(
-                    0,
-                    maxColumns
-                );
-                acc.push(singleGoTermPrediction);
-                return acc;
-            },
-            []
-        );
-
-        let maxRows = goTermsPredictionsFormatted[0].length;
-        let goTermsPredictionsTransposed = Array(maxRows).fill([]);
-
-        goTermsPredictionsFormatted.forEach((item, colIdx) => {
-            item.forEach((each, rowIdx) => {
-                goTermsPredictionsTransposed[rowIdx] = [
-                    ...goTermsPredictionsTransposed[rowIdx],
-                    each,
-                ];
-            });
-        });
-
-        let tableHeader = document.getElementById("table-heading");
-        let tableBody = document.getElementById("table-body");
-
-        goTerms.forEach((item) => {
-            let th = document.createElement("th");
-            th.innerText = item;
-            tableHeader.appendChild(th);
-        });
-
-        goTermsPredictionsTransposed.forEach((item, index) => {
-            let tr = document.createElement("tr");
-
-            let td = document.createElement("td");
-            td.innerText = index + 1;
-            tr.appendChild(td);
-
-            item.forEach((each) => {
-                let td = document.createElement("td");
-                td.innerText = each;
-                tr.appendChild(td);
-            });
-
-            tableBody.appendChild(tr);
-        });
-
-    }
-    function handleFileChange() {
-        const fileInput = document.getElementById("file");
-        const file = fileInput.files[0];
-        if (file) {
-            document.getElementById('file-label').classList.add('file')
-            document.getElementById('file-label').innerText = 'File selected'
-        } else {
-            document.getElementById('file-label').classList.remove('file')
-            document.getElementById('file-label').innerText = 'Choose a file'
-        }
-    }
 </script>
 {% endblock %}

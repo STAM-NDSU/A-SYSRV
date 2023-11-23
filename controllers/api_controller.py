@@ -34,10 +34,15 @@ class APIController(BaseController):
 
             #TODO: this should not be the solution.
             filename = self.uniprot_service.save_uniprot_response(results)
-            predictions = self.ml_model.get_predictions(filepath, filename)
-            filename = self.uniprot_service.save_model_response(predictions)
+            predictions_df, prediction_dict = self.ml_model.get_predictions(filepath, filename)
+            filename = self.uniprot_service.save_model_response(predictions_df)
 
-            return jsonify({"results": predictions.to_json(), "filename": filename}) #TODO: why this format?
+            jsonified = json.dumps(prediction_dict)
+
+            # log JSON response
+            self.logger.info(f"JSON response: {jsonified}")
+
+            return jsonify({"results": jsonified, "filename": filename}) #TODO: why this format?
         except Exception as e:
             traceback.print_exc()
             self.logger.error(e)

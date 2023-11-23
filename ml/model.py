@@ -41,9 +41,9 @@ class MLModel(BaseML):
             model_dir = current_app.config.get("MODEL")
             model_path = f"{model_dir}/RandomForestClassifier.pkl"
 
-            predictions = predict_with_model(full_filepath, model_path)
+            predictions_df, prediction_dict = predict_with_model(full_filepath, model_path)
 
-            return predictions
+            return predictions_df, prediction_dict
         except Exception as e:
             self.logger.error(str(e))
             raise e
