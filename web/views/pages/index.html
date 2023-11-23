@@ -2,6 +2,9 @@
 
 {% block content %}
 <div class="container">
+    <div id="status-container" class="alert alert-info" role="alert" style="display: none;">
+        Waiting for status updates...
+    </div>
     <div class="row justify-content-center">
         <div class="col col-lg-6">
             <h2>A-SysRV Prediction Tool</h2>
@@ -62,6 +65,7 @@
 {% block scripts %}
 <script>
     async function uploadFile(e) {
+        listenForStatusUpdates();
         e.preventDefault()
 
         const fileInput = document.getElementById("file");
@@ -71,6 +75,8 @@
             alert("Please select a file.");
             return;
         }
+
+
 
         document.getElementById('loader').classList.add('show')
         document.getElementById('submit-btn').setAttribute("disabled", "disabled");
@@ -185,6 +191,31 @@
         } catch (error) {
             console.error("Error:", error);
         }
+    }
+
+    // Function to update the status message on the page
+    function updateStatus(message) {
+        const statusContainer = document.getElementById('status-container');
+        statusContainer.style.display = 'block'; // Show the status container if it's not already
+        statusContainer.textContent = message; // Update the status message text
+    }
+
+    // Function to listen for server-sent events
+    function listenForStatusUpdates() {
+        const eventSource = new EventSource('/api/status');
+
+        eventSource.onmessage = function (event) {
+            updateStatus(event.data); // Update the status on the page with the event data
+        };
+
+        eventSource.onerror = function (event) {
+            if (event.target.readyState === EventSource.CLOSED) {
+                updateStatus('Connection was closed.');
+            } else {
+                updateStatus('An error occurred while receiving status updates.');
+            }
+            eventSource.close();
+        };
     }
 
 </script>
