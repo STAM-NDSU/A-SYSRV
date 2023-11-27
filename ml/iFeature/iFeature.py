@@ -4,6 +4,7 @@
 import argparse
 import re
 from codes import *
+import os
 
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser(usage="it's usage tip.",
@@ -53,5 +54,5 @@ if __name__ == '__main__':
 	myFun = args.type + '.' + args.type + '(fastas, **kw)'
 	print('Descriptor type: ' + args.type)
 	encodings = eval(myFun)
-	outFile = args.outFile if args.outFile != None else 'encoding.tsv'
+	outFile = args.outFile if args.outFile != None else os.path.join(os.path.dirname(__file__), "encoding.tsv") 
 	saveCode.savetsv(encodings, outFile)

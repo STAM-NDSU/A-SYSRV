@@ -5,7 +5,7 @@
     <div class="row justify-content-center">
         <div class="col col-lg-6">
             <h2>Upload a fasta file</h2>
-            <form action="" method="post" enctype="multipart/form-data" onsubmit="event.preventDefault()">
+            <br action="" method="post" enctype="multipart/form-data" onsubmit="event.preventDefault()">
                 <div class="upload-btn-wrapper" title="Click to choose a file">
                     <input type="file" name="file" id="file" style="display: none;" accept=".fasta,.txt"
                         onchange="handleFileChange()">
@@ -16,10 +16,11 @@
                         <span id="submit-txt">Submit</span></button>
                 </div>
                 <div class="loader" id="loader"></div>
-                <p class="text-muted mt-2">Note: For now, we only accept ".fasta" files from UNIPROT.org</p>
+                <p class="text-muted mt-2">Note: For now, we only accept ".fasta" files from UNIPROT.org. 
+                <br>You can use one of the following samples from below.</p>
                 <hr style="width: 400px;margin:auto">
                 <div class="mt-2">
-                    <h5>Some examples of fasta files</h5>
+                    <h5>Sample FASTA files:</h5>
                     <div class="d-flex justify-content-center">
                         <div class="me-2"> <a href="{{url_for('static', filename='try-out/example-1.fasta')}}">Example
                                 1</a></div>

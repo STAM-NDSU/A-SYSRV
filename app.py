@@ -20,12 +20,17 @@ def create_app():
 
     # Setup app configuration
     def setup_config():
-        # Load the default configuration
-        app.config.from_object("config.default")
+        with app.app_context():
+            # Set the Flask app's root path
+            current_directory = os.path.dirname(os.path.abspath(__file__))
+            app.root_path = current_directory
+        
+            # Load the default configuration
+            app.config.from_object("config.default")
 
-        # Load .env variables
-        for key, value in os.environ.items():
-            app.config[key] = value
+            # Load .env variables
+            for key, value in os.environ.items():
+                app.config[key] = value
 
     setup_config()
 
