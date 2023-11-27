@@ -8,6 +8,7 @@ sys.path.append(pPath)
 import checkFasta
 import readFasta
 import saveCode
+import os
 
 USAGE = """
 USAGE:
@@ -76,6 +77,6 @@ if __name__ == '__main__':
 		sys.exit(1)
 	fastas = readFasta.readFasta(sys.argv[1])
 	lambdaValue = int(sys.argv[2]) if len(sys.argv) >= 3 else 30
-	output = sys.argv[3] if len(sys.argv) >= 4 else 'encoding.tsv'
+	output = sys.argv[3] if len(sys.argv) >= 4 else os.path.join(os.path.dirname(__file__), "encoding.tsv") 
 	encodings = PAAC(fastas, lambdaValue)
 	saveCode.savetsv(encodings, output)

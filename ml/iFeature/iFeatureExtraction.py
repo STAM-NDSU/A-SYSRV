@@ -18,11 +18,13 @@ def generate_iFeature(input_file, output_directory, descriptors=None):
 
     for descriptor in descriptors:
         logger.info(f"Processing descriptor: {descriptor}")
-        command = [python_executable, "./ml/iFeature/iFeature.py", "--file", input_file, "--type", descriptor]
+
+        # command = [python_executable, "./ml/iFeature/iFeature.py", "--file", input_file, "--type", descriptor]
+        command = [python_executable, os.path.join(os.path.dirname(__file__), "iFeature.py"), "--file", input_file, "--type", descriptor]
         result = subprocess.run(command, capture_output=True, text=True)
 
         # Check if the encoding.tsv file exists
-        source_path = "encoding.tsv"
+        source_path = os.path.join(os.path.dirname(__file__), "encoding.tsv") 
         if os.path.exists(source_path):
             destination_path = os.path.join(output_directory, f"{descriptor}.tsv")
             os.rename(source_path, destination_path)

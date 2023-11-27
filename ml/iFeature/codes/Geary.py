@@ -9,6 +9,7 @@ sys.path.append(pPath)
 import checkFasta
 import readFasta
 import saveCode
+import os
 
 def Geary(fastas, props=['CIDH920105', 'BHAR880101', 'CHAM820101', 'CHAM820102',
 						 'CHOC760101', 'BIGC670101', 'CHAM810101', 'DAYM780201'],
@@ -86,6 +87,6 @@ if __name__ == '__main__':
 	props = args.props.split(':') if args.props != None else ['CIDH920105', 'BHAR880101', 'CHAM820101', 'CHAM820102',
 															  'CHOC760101', 'BIGC670101', 'CHAM810101', 'DAYM780201']
 	nlag = int(args.nlag) if args.nlag != None else 30
-	output = args.outFile if args.outFile != None else 'encoding.tsv'
+	output = args.outFile if args.outFile != None else os.path.join(os.path.dirname(__file__), "encoding.tsv") 
 	encodings = Geary(fastas, props, nlag)
 	saveCode.savetsv(encodings, output)

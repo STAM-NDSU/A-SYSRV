@@ -14,6 +14,7 @@ pPath = os.path.split(os.path.realpath(__file__))[0]
 sys.path.append(pPath)
 import readFasta
 import saveCode
+import os
 
 def CalculateKSCTriad(sequence, gap, features, AADict):
 	res = []
@@ -77,6 +78,6 @@ if __name__ == '__main__':
 		sys.exit(1)
 	fastas = readFasta.readFasta(sys.argv[1])
 	k = int(sys.argv[2]) if len(sys.argv) >= 3 else 5
-	output = sys.argv[3] if len(sys.argv) >= 4 else 'encoding.tsv'
+	output = sys.argv[3] if len(sys.argv) >= 4 else os.path.join(os.path.dirname(__file__), "encoding.tsv") 
 	encodings = KSCTriad(fastas, k)
 	saveCode.savetsv(encodings, output)
