@@ -24,9 +24,9 @@ def predict_with_model(db_path, model_path):
         df = pd.read_sql_query("SELECT * FROM new_merged_data", conn)
 
         # Store and drop the 'id' column
-        if 'id' in df.columns:
-            ids = df['id']
-            df = df.drop('id', axis=1)
+        if 'primaryAccession' in df.columns:
+            ids = df['primaryAccession']
+            df = df.drop('primaryAccession', axis=1)
 
         # Split the data into features and targets
         X = df[df.columns[~df.columns.str.startswith('GO_')]]
@@ -52,7 +52,7 @@ def predict_with_model(db_path, model_path):
         # Create a dictionary of IDs and their predicted GO terms
         predictions_dict = {}
         for _, row in predictions_df.iterrows():
-            row_id = int(row['id'])
+            row_id = row['id']
             predicted_terms = [term for term, value in row.drop('id').items() if value == 1]
             if predicted_terms:
                 predictions_dict[row_id] = predicted_terms
@@ -61,6 +61,5 @@ def predict_with_model(db_path, model_path):
         return predictions_df, predictions_dict
 
     except Exception as e:
-        # Handle any exceptions (like file not found or data errors)
-        print(f"An error occurred: {e}")
+        logger.error(f"An error occurred: {e}")
         return None

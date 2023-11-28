@@ -9,6 +9,5 @@ storage/fastas/*
 ml/data/*
 .DS_Store
 *.db
-*.fasta
 *.ipynb
 *.ipynb

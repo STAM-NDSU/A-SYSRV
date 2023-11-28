@@ -23,11 +23,12 @@
                 <div class="mt-2">
                     <h5>Sample FASTA files:</h5>
                     <div class="d-flex justify-content-center">
-                        <div class="me-2"> <a href="{{url_for('static', filename='try-out/example-3.fasta')}}">Small
+                        <div class="me-2"> <a href="{{url_for('static', filename='try-out/small_sample.fasta')}}">Small
                                 Sample</a></div>
-                        <div class="me-2"> <a href="{{url_for('static', filename='try-out/example-2.fasta')}}">Medium
-                                Sample</a></div>
-                        <div class="me-2"> <a href="{{url_for('static', filename='try-out/example-1.fasta')}}">Large
+                        <div class="me-2"> <a
+                                href="{{url_for('static', filename='try-out/medium_sample.fasta')}}">Medium Sample</a>
+                        </div>
+                        <div class="me-2"> <a href="{{url_for('static', filename='try-out/large_sample.fasta')}}">Large
                                 Sample</a></div>
 
                     </div>
@@ -125,15 +126,14 @@
         tableHeader.appendChild(goTermsHeader);
 
         // Populate the body of the table
-        let count = 1;
         for (let id in results) {
             if (results.hasOwnProperty(id)) {
                 let tr = document.createElement("tr");
 
-                // Serial Number column
-                let tdSN = document.createElement("td");
-                tdSN.innerText = count++;
-                tr.appendChild(tdSN);
+                // ID column
+                let tdID = document.createElement("td");
+                tdID.innerText = id;  // Use the ID as the text
+                tr.appendChild(tdID);
 
                 // Predicted GO Terms column
                 let tdGoTerms = document.createElement("td");
