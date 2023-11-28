@@ -434,7 +434,6 @@ def populate_db(fasta_file, json_file, db_dir, tsv_directory):
 
     cur.executescript('''
         ALTER TABLE new_merged_data DROP COLUMN id;
-        ALTER TABLE new_merged_data DROP COLUMN primaryAccession;
         ALTER TABLE new_merged_data DROP COLUMN annotationScore;
         ALTER TABLE new_merged_data DROP COLUMN keywords;
         ALTER TABLE new_merged_data DROP COLUMN uniProtKBCrossReferences;

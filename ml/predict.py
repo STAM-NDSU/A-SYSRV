@@ -23,6 +23,11 @@ def predict_with_model(db_path, model_path):
         conn = sqlite3.connect(db_path)
         df = pd.read_sql_query("SELECT * FROM new_merged_data", conn)
 
+        # Store and drop the 'id' column
+        if 'primaryAccession' in df.columns:
+            ids = df['primaryAccession']
+            df = df.drop('primaryAccession', axis=1)
+
         # Split the data into features and targets
         X = df[df.columns[~df.columns.str.startswith('GO_')]]
 
@@ -39,14 +44,22 @@ def predict_with_model(db_path, model_path):
         # Make predictions
         predictions = loaded_model.predict(X)
 
-        predictions_df = pd.DataFrame(predictions, columns=['GO_0051287', 'GO_0009331', 'GO_0003677', 'GO_0003723', 'GO_0005506',
-       'GO_0005524', 'GO_0046167', 'GO_0008270', 'GO_0016887', 'GO_0019843',
-       'GO_0008654', 'GO_0046872', 'GO_0050661', 'GO_0051539'])
+        predictions_df = pd.DataFrame(predictions, columns=['GO_0051287', 'GO_0009331', 'GO_0003677', 'GO_0003723', 'GO_0005506','GO_0005524', 'GO_0046167', 'GO_0008270', 'GO_0016887', 'GO_0019843','GO_0008654', 'GO_0046872', 'GO_0050661', 'GO_0051539'])
+        
+        # Add the 'id' column back
+        predictions_df.insert(0, 'id', ids.values)
+
+        # Create a dictionary of IDs and their predicted GO terms
+        predictions_dict = {}
+        for _, row in predictions_df.iterrows():
+            row_id = row['id']
+            predicted_terms = [term for term, value in row.drop('id').items() if value == 1]
+            if predicted_terms:
+                predictions_dict[row_id] = predicted_terms
         
 
-        return predictions_df
+        return predictions_df, predictions_dict
 
     except Exception as e:
-        # Handle any exceptions (like file not found or data errors)
-        print(f"An error occurred: {e}")
+        logger.error(f"An error occurred: {e}")
         return None
